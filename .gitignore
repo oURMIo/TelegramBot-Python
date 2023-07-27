@@ -1,0 +1,15 @@
+*.iml
+*.ipr
+*.iws
+*.log
+*.orig
+.classpath
+.idea
+.local
+.project
+.settings
+target
+web/overlays/
+.vscode
+conf.py
+INFA.txt
