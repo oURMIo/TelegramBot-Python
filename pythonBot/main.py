@@ -14,6 +14,7 @@ urlProjectMorse = conf.URL_PROJECT_MORSE
 
 # Tool urls
 urlToolDomain = conf.URL_TOOL_DOMAIN
+urlToolDrive = conf.URL_TOOL_DRIVE
 
 work = True
 
@@ -63,9 +64,11 @@ def filesave(message):
 @bot.message_handler(commands=["help"])
 def helping(message):
     text = """You can use these commands :
+    /instruments      - List of url instruments
+    /projects         - List of projects
+    /for_family       - List urls for chistyakovs
     /check_dachserv   - Check server 'dachserv' status
-    /return_check     - This command should be used if you want to monitor the status of servers
-    /projects         - List of projects"""
+    /check_enable     - This command should be used if you want to monitor the status of servers"""
     bot.reply_to(message, str(text))
 
 
@@ -83,7 +86,7 @@ def filesave(message):
         bot.reply_to(message, "dach-server down. You should check its status")
 
 
-@bot.message_handler(commands=["return_check"])
+@bot.message_handler(commands=["check_enable"])
 def changeworkstatus(message):
     global work
     work = True
@@ -98,7 +101,21 @@ def changeworkstatus(message):
 
 @bot.message_handler(commands=["instruments"])
 def changeworkstatus(message):
-    text = "List of miscellaneous tools : \n\n" + urlToolDomain + " - domains" + "\n"
+    text = (
+        "List of tools : \n\n"
+        + "• domains - "
+        + urlToolDomain
+        + "\n"
+        + "• drive   - "
+        + urlToolDrive
+        + "\n"
+    )
+    bot.reply_to(message, text)
+
+
+@bot.message_handler(commands=["for_family"])
+def changeworkstatus(message):
+    text = "List for family : \n\n" + "• drive - " + urlToolDrive + "\n"
     bot.reply_to(message, text)
 
 
@@ -110,3 +127,4 @@ def repid(message):
 
 
 bot.polling(none_stop=True)
+

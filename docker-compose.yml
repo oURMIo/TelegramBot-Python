@@ -1,4 +1,4 @@
-version: "3"
+version: "3.2"
 
 services:
   app:
@@ -7,3 +7,4 @@ services:
     restart: on-failure
     volumes:
       - ./pythonBot:/pythonBot
+      
