@@ -11,5 +11,4 @@
 target
 web/overlays/
 .vscode
-conf.py
 INFA.txt

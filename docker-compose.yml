@@ -2,9 +2,15 @@ version: "3.2"
 
 services:
   app:
-    build: ./pythonBot
     container_name: python-bot
-    restart: on-failure
+    build: ./pythonBot
     volumes:
       - ./pythonBot:/pythonBot
-      
+    restart: unless-stopped
+
+  restarter:
+    container_name: restarter
+    image: docker:cli
+    volumes: ["/var/run/docker.sock:/var/run/docker.sock"]
+    command: ["/bin/sh", "-c", "while true; do sleep 86400; docker restart python-bot; done"]
+    restart: unless-stopped
