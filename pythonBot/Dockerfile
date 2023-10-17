@@ -6,6 +6,6 @@ RUN pip install --no-cache-dir -r pyTelegramBotAPI
 RUN pip install --no-cache-dir -r TIME-python
 RUN pip install --no-cache-dir -r requests-html
 
-COPY ./pythonBot .
+COPY . .
 
 CMD [ "python", "main.py" ]
