@@ -1,5 +1,5 @@
 # TOKEN BOT
-TOKEN = " "
+TOKEN = "  "
 
 # SERVER URLs
 URL_DACHSERV = " "
