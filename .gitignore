@@ -15,3 +15,6 @@ INFA.txt
 conf.py
 **/conf.py
 pythonBot/conf.py
+*.log
+**/*.log
+**/**/*.log
