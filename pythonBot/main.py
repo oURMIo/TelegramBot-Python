@@ -1,6 +1,8 @@
 import telebot
 import conf
+import user
 import time
+import logging
 from requests_html import HTMLSession
 from threading import Thread
 from time import sleep
@@ -8,57 +10,76 @@ from time import sleep
 # CONFIG
 bot = telebot.TeleBot(conf.TOKEN)
 
-# Project urls
-urlProjectCheck = conf.URL_PROJECT_CHECK
-urlProjectMorse = conf.URL_PROJECT_MORSE
+# ADMIN ID
 
-# Tool urls
-urlToolDomain = conf.URL_TOOL_DOMAIN
-urlToolDrive = conf.URL_TOOL_DRIVE
+admin_id = int(conf.ADMIN_ID)
 
+# PROJECT URLS
+url_project_check = conf.URL_PROJECT_CHECK
+url_project_morse = conf.URL_PROJECT_MORSE
+
+# TOOL URLS
+url_tool_domain = conf.URL_TOOL_DOMAIN
+url_tool_drive = conf.URL_TOOL_DRIVE
+
+# LOGGING
+logger = logging.getLogger('Logger')
+logger.setLevel(logging.DEBUG)
+file_handler1 = logging.FileHandler('concole.log', mode='w')
+file_handler1.setLevel(logging.DEBUG)
+formatter = logging.Formatter('[%(asctime)s] [%(name)s] [%(levelname)s] - [%(message)s]')
+file_handler1.setFormatter(formatter)
+logger.addHandler(file_handler1)
+# %s for string, %d for number
+
+# GLOBAL VARIBLES
+user_store = user.UserStore()
 work = True
+TIME_OUT = 30
+SHUTDOWN_MESSAGE = "Dachserv just shut down! Check it out by following the link -"
 
 
-def sendMessageShutDown():
-    file = open("INFA.txt")
-    for line in file:
-        id = line.partition(" ")[0]
-        text = (
-            "Dachserv just shut down! Check it out by following the link -"
-            + urlProjectCheck,
-        )
-        bot.send_message(int(id), text)
-    file.close()
+def send_shutdown_message():
+    user_ids = user_store.get_all_users()
+    message = SHUTDOWN_MESSAGE + url_project_check
+    for user_id in user_ids:
+        bot.send_message(int(user_id), message)
 
 
-def checkServ():
+def check_server():
     global work
     session = HTMLSession()
-    while work == True:
+    while work:
         try:
-            response = session.get(urlProjectCheck)
-            result = str(response.content)
-            res = result.find("working")
-            if res < 0:
+            response = session.get(url_project_check)
+            if "working" not in response.text:
                 work = False
-                sendMessageShutDown()
-            sleep(60)
-        except:
+                send_shutdown_message()
+            sleep(TIME_OUT)
+        except Exception as e:
             work = False
-            sendMessageShutDown()
+            send_shutdown_message()
 
 
-thCheckServ = Thread(target=checkServ)
-thCheckServ.start()
+def check_periodically():
+    global work
+    session = HTMLSession()
+    
+    while not work:
+        try:
+            response = session.get(url_project_check)
+            if "working" in response.text:
+                work = True
+            sleep(20 * 60)
+        except Exception as e:
+            sleep(20 * 60)
 
 
 @bot.message_handler(commands=["start"])
 def filesave(message):
     text = "Hello (〃￣︶￣)人(￣︶￣〃)! My name is Sagiri, and I am a system administrator bot capable of checking the status of servers and notifying you about their condition"
     bot.reply_to(message, text)
-    file = open("INFA.txt", "a+")
-    file.write(str(message.from_user.id) + " || " + str(time.ctime()) + "\n")
-    file.close()
+    logger.info("Got new user with id-'%d'", message.from_user.id)
 
 
 @bot.message_handler(commands=["help"])
@@ -67,15 +88,44 @@ def helping(message):
     /instruments      - List of url instruments
     /projects         - List of projects
     /for_family       - List urls for chistyakovs
+    /subscribe        - Subscription to notifications
+    /unsubscribe      - Unsubscribe from notifications
     /check_dachserv   - Check server 'dachserv' status
     /check_enable     - This command should be used if you want to monitor the status of servers"""
     bot.reply_to(message, str(text))
 
 
+@bot.message_handler(commands=["subscribe"])
+def filesave(message):
+    text = "You have subscribed successfully. Congratulations! \n" + "You will now receive notifications. If you do not want to receive notifications, use the command /unsubscribe"
+    bot.reply_to(message, text)
+    user_store.add_user(int(message.from_user.id))
+    logger.debug("User with id:'%d' had subscribed", message.from_user.id)
+
+
+@bot.message_handler(commands=["unsubscribe"])
+def filesave(message):
+    text = "You unsubscribed from the notification"
+    bot.reply_to(message, text)
+    user_store.remove_user(int(message.from_user.id))
+    logger.debug("User with id:'%d' had unsubscribed", message.from_user.id)
+
+
+@bot.message_handler(commands=["subscribe_list"])
+def filesave(message):
+    if message.from_user.id == admin_id:
+        user_mas = user_store.get_all_users()
+        text = ", ".join(map(str, user_mas))
+        bot.reply_to(message, text)
+    else:
+        text = "Permission denied"
+        bot.reply_to(message, text)
+
+
 @bot.message_handler(commands=["check_dachserv"])
 def filesave(message):
     try:
-        response = HTMLSession().get(urlProjectCheck)
+        response = HTMLSession().get(url_project_check)
         result = str(response.content)
         res = result.find("working")
         if res > 0:
@@ -95,7 +145,7 @@ def changeworkstatus(message):
 
 @bot.message_handler(commands=["projects"])
 def changeworkstatus(message):
-    text = "List of projects : \n\n" + "• " + urlProjectMorse + "\n"
+    text = "List of projects : \n\n" + "• " + url_project_morse + "\n"
     bot.reply_to(message, text)
 
 
@@ -104,10 +154,10 @@ def changeworkstatus(message):
     text = (
         "List of tools : \n\n"
         + "• domains - "
-        + urlToolDomain
+        + url_tool_domain
         + "\n"
         + "• drive   - "
-        + urlToolDrive
+        + url_tool_drive
         + "\n"
     )
     bot.reply_to(message, text)
@@ -115,7 +165,7 @@ def changeworkstatus(message):
 
 @bot.message_handler(commands=["for_family"])
 def changeworkstatus(message):
-    text = "List for family : \n\n" + "• drive - " + urlToolDrive + "\n"
+    text = "List for family : \n\n" + "• drive - " + url_tool_drive + "\n"
     bot.reply_to(message, text)
 
 
@@ -126,5 +176,10 @@ def repid(message):
     bot.send_message(message.chat.id, text)
 
 
-bot.polling(none_stop=True)
+# THREADS
+thread_check_enable = Thread(target=check_periodically)
+thread_check_enable.start()
+thread_check_serv = Thread(target=check_server)
+thread_check_serv.start()
 
+bot.polling(none_stop=True)
