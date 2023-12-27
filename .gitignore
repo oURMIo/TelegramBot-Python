@@ -1,20 +1,21 @@
+#config
+**/**/config.ini
+**/config.ini
+
+# files
 *.iml
 *.ipr
 *.iws
-*.log
 *.orig
+*.json
 .classpath
 .idea
 .local
 .project
 .settings
 target
-web/overlays/
-.vscode
-INFA.txt
-conf.py
-**/conf.py
-pythonBot/conf.py
+
+# logs
 *.log
 **/*.log
 **/**/*.log
