@@ -2,7 +2,7 @@ version: "3.2"
 
 services:
   app:
-    container_name: python-bot
+    container_name: python-telebot
     build: ./pythonBot
     volumes:
       - ./pythonBot:/pythonBot
@@ -12,5 +12,5 @@ services:
     container_name: restarter
     image: docker:cli
     volumes: ["/var/run/docker.sock:/var/run/docker.sock"]
-    command: ["/bin/sh", "-c", "while true; do sleep 86400; docker restart python-bot; done"]
+    command: ["/bin/sh", "-c", "while true; do sleep 86400; docker restart python-telebot; done"]
     restart: unless-stopped

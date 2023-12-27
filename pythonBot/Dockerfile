@@ -2,10 +2,10 @@ FROM python:3.11-slim-buster
 
 WORKDIR ./pythonBot
 
-RUN pip install --no-cache-dir -r pyTelegramBotAPI
-RUN pip install --no-cache-dir -r TIME-python
-RUN pip install --no-cache-dir -r requests-html
+RUN pip install --no-cache-dir pyTelegramBotAPI
+RUN pip install --no-cache-dir TIME-python
+RUN pip install --no-cache-dir requests-html
 
 COPY . .
 
-CMD [ "python", "main.py" ]
+CMD [ "python", "src/main.py" ]
