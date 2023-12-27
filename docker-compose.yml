@@ -3,9 +3,9 @@ version: "3.2"
 services:
   app:
     container_name: python-telebot
-    build: ./python
+    build: ./pythonBot
     volumes:
-      - ./python:/python
+      - ./pythonBot:/pythonBot
     restart: unless-stopped
 
   restarter:
