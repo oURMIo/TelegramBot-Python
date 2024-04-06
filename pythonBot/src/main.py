@@ -1,6 +1,7 @@
 import telebot
 from telebot import types
 import logging
+from logging.handlers import RotatingFileHandler
 import os
 from requests_html import HTMLSession
 from threading import Thread
@@ -10,13 +11,21 @@ from config_service import ConfigService
 from file_service import FileService
 
 LOG_DIR = './logs/'
+MAX_LOG_SIZE = 100 * 1024 * 1024  # 100 MB
+
 os.makedirs(LOG_DIR, exist_ok=True)
 
 log_file = os.path.join(LOG_DIR, 'console.log')
 with open(log_file, 'w'):
     pass
 
-logging.basicConfig(filename=log_file, level=logging.DEBUG, format='[%(asctime)s] [%(name)s] [%(levelname)s] - [%(message)s]')
+handler = RotatingFileHandler(log_file, maxBytes=MAX_LOG_SIZE, backupCount=1)
+handler.setLevel(logging.DEBUG)
+formatter = logging.Formatter('[%(asctime)s] [%(name)s] [%(levelname)s] - [%(message)s]')
+handler.setFormatter(formatter)
+
+logging.getLogger().addHandler(handler)
+logging.getLogger().setLevel(logging.DEBUG)
 # %s for string, %d for number
 
 config_service = ConfigService()
