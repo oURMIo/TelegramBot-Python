@@ -6,6 +6,7 @@ import os
 from requests_html import HTMLSession
 from threading import Thread
 import time
+import datetime
 
 from config_service import ConfigService
 from file_service import FileService
@@ -59,38 +60,67 @@ def check_server_status(url):
 
 
 flag_dach_work = check_server_status(config_service.get_check_dachserv_url())
+dach_status_counter = 0
 
 flag_chserv_work = check_server_status(config_service.get_check_chserv_url())
+chserv_status_counter = 0
 
 
 def demon_check_dach_status():
     while True:
         global flag_dach_work
+        global dach_status_counter
         check_url = config_service.get_check_dachserv_url()
         flag = check_server_status(check_url)
-        subscribe_ids = file_service.get_subscribe_users()
         if flag is False and flag_dach_work is True:
-            logging.info("Send 'dach shutdown' message to all subscribe users:'%d'", subscribe_ids)
-            flag_dach_work = False
-            text = "The Dach server has status:'SHUTDOWN'. Please check the cluster's status or contact my creator."
-            for chat_id in subscribe_ids:
-                bot.send_message(chat_id, text)
-        time.sleep(10)
+            subscribe_ids = file_service.get_subscribe_users()
+            dach_status_counter += 1
+            if dach_status_counter == 2:
+                logging.info("Send 'dach shutdown' message to all subscribe users:'%d'", subscribe_ids)
+                flag_dach_work = False
+                text = "The Dach server has status:'SHUTDOWN'. Please check the cluster's status or contact my creator."
+                for chat_id in subscribe_ids:
+                    bot.send_message(chat_id, text)
+        else:
+            dach_status_counter = 0
+        time.sleep(60)
 
 
 def demon_check_chserv_status():
     while True:
         global flag_chserv_work
+        global chserv_status_counter
         check_url = config_service.get_check_chserv_url()
         flag = check_server_status(check_url)
-        subscribe_ids = file_service.get_subscribe_users()
         if flag is False and flag_chserv_work is True:
-            logging.info("Send 'chserv shutdown' message to all subscribe users:'%d'", subscribe_ids)
-            flag_chserv_work = False
-            text = "The Chist server has status:'SHUTDOWN'. Please check the cluster's status or contact my creator."
+            subscribe_ids = file_service.get_subscribe_users()
+            chserv_status_counter += 1
+            if chserv_status_counter == 2:
+                logging.info("Send 'chserv shutdown' message to all subscribe users:'%d'", subscribe_ids)
+                flag_chserv_work = False
+                text = "The Chist server has status:'SHUTDOWN'. Please check the cluster's status or contact my creator."
+                for chat_id in subscribe_ids:
+                    bot.send_message(chat_id, text)
+        else:
+            chserv_status_counter = 0
+        time.sleep(60)
+
+
+def demon_domain_notification():
+    start_date = datetime.datetime(2024, 4, 7)
+    while True:
+        current_date = datetime.datetime.now()
+        days_passed = (current_date - start_date).days
+        if days_passed % 20 == 0:
+            logging.info("Monthly domain update notification")
+            subscribe_ids = file_service.get_subscribe_users()
+            text = "Good day! It's time to freshen up the domain names for our servers. Please follow the link:"
+            markup_inline = types.InlineKeyboardMarkup()
+            domain_button = types.InlineKeyboardButton("domains", url=config_service.get_url_tool_domain())
+            markup_inline.add(domain_button)
             for chat_id in subscribe_ids:
-                bot.send_message(chat_id, text)
-        time.sleep(10)
+                bot.send_message(chat_id, text, reply_markup = markup_inline)
+        current_date += datetime.timedelta(days=1)
 
 
 # REQYEST MESSAGES
@@ -258,8 +288,10 @@ def sub_helpful_urls(message):
     markup_inline = types.InlineKeyboardMarkup()
     domain_button = types.InlineKeyboardButton("domains", url=config_service.get_url_tool_domain())
     drive_button = types.InlineKeyboardButton("drive", url=config_service.get_url_tool_drive())
-    markup_inline.add(domain_button, drive_button)
-    bot.send_message(message.from_user.id, "Choose a tool:", reply_markup=markup_inline)
+    monit_button = types.InlineKeyboardButton("chserv monit", url=config_service.get_url_tool_monit())
+    cloude_button = types.InlineKeyboardButton("nextcloud", url=config_service.get_url_tool_nextcloud())
+    markup_inline.add(domain_button, drive_button, monit_button, cloude_button)
+    bot.send_message(message.from_user.id, "Choose a tool:", reply_markup = markup_inline)
 
 
 def sub_price_request(message):

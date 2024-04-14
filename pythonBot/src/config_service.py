@@ -38,3 +38,9 @@ class ConfigService:
 
     def get_url_tool_drive(self):
         return str(self.config.get('TOOLS_URLS', 'URL_TOOL_DRIVE', fallback=None)) if self.config else None
+    
+    def get_url_tool_monit(self):
+        return str(self.config.get('TOOLS_URLS', 'URL_TOOL_MONIT', fallback=None)) if self.config else None
+    
+    def get_url_tool_nextcloud(self):
+        return str(self.config.get('TOOLS_URLS', 'URL_TOOL_NEXTCLOUD', fallback=None)) if self.config else None

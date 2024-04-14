@@ -1,6 +1,7 @@
 #config
 **/**/config.ini
 **/config.ini
+config.ini
 
 # files
 *.iml
@@ -8,12 +9,18 @@
 *.iws
 *.orig
 *.json
+**/*.json
+**/**/*.json
 .classpath
 .idea
 .local
 .project
 .settings
 target
+
+__pycache__
+**/__pycache__
+**/**/__pycache__
 
 # logs
 *.log
