@@ -107,11 +107,11 @@ def demon_check_chserv_status():
 
 
 def demon_domain_notification():
-    start_date = datetime.datetime(2024, 4, 7)
+    start_date = datetime.datetime(2024, 4, 30)
     while True:
         current_date = datetime.datetime.now()
         days_passed = (current_date - start_date).days
-        if days_passed % 20 == 0:
+        if days_passed % 23 == 0:
             logging.info("Monthly domain update notification")
             subscribe_ids = file_service.get_subscribe_users()
             text = "Good day! It's time to freshen up the domain names for our servers. Please follow the link:"
@@ -181,7 +181,8 @@ def sub_tools_message(chat_id):
     btn_check_status = types.KeyboardButton("Server status")
     btn_instrument_url = types.KeyboardButton("Helpful urls")
     btn_price_request = types.KeyboardButton("Price request")
-    markup.add(btn_check_status, btn_instrument_url, btn_price_request)
+    btn_left_domain = types.KeyboardButton("Days Left Domain")
+    markup.add(btn_check_status, btn_instrument_url, btn_price_request, btn_left_domain)
     bot.send_message(chat_id, "Select an action select an action using the buttons", reply_markup=markup)
       
 
@@ -267,9 +268,12 @@ def responsi_text_message(message):
             case "helpful urls":
                 sub_helpful_urls(message)
 
+            case "days left domain":
+                sub_days_left_domain(message)
+
             case "price request":
                 sub_price_request(message)
-        
+
             case _:
                 bot.send_message(message.from_user.id, "I do not understand you. Select a function from the given list /help", reply_markup=markup)
 
@@ -299,6 +303,16 @@ def sub_price_request(message):
     bot.send_message(message.from_user.id, "I apologize, but not supported now".format(message.from_user),reply_markup=markup)
 
 
+def sub_days_left_domain(message):
+    markup = telebot.types.ReplyKeyboardRemove()
+    start_date = datetime.datetime(2024, 4, 30)
+    current_date = datetime.datetime.now()
+    days_passed = (current_date - start_date).days
+    name = message.from_user.first_name
+    days_left = 23 - days_passed % 23
+    bot.send_message(message.from_user.id, f"Dear {name}. Just a gentle reminder, there are '{days_left}' days left until the renewal of the domain name.".format(message.from_user),reply_markup=markup)
+
+
 def check_contains_user(message):
     if not file_service.check_user_exists(message.from_user.id):
         markup = telebot.types.ReplyKeyboardRemove()
@@ -309,10 +323,12 @@ def check_contains_user(message):
 
 if __name__ == '__main__':
     try:
-        thread_check_dach = Thread(target=demon_check_dach_status)
-        thread_check_dach.start()
-        thread_check_dach = Thread(target=demon_check_chserv_status)
-        thread_check_dach.start()
+        thread_check_dachserv = Thread(target=demon_check_dach_status)
+        thread_check_dachserv.start()
+        thread_check_chserv = Thread(target=demon_check_chserv_status)
+        thread_check_chserv.start()
+        thread_check_domain = Thread(target=demon_domain_notification)
+        thread_check_domain.start()
         bot.polling(none_stop=True)
     except telebot.apihelper.ApiException as e:
         logging.exception("Telegram API Error: %r", e)
