@@ -121,6 +121,7 @@ def demon_domain_notification():
             for chat_id in subscribe_ids:
                 bot.send_message(chat_id, text, reply_markup = markup_inline)
         current_date += datetime.timedelta(days=1)
+        time.sleep(86400)
 
 
 # REQYEST MESSAGES
