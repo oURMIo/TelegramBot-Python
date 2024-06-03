@@ -107,7 +107,7 @@ def demon_check_chserv_status():
 
 
 def demon_domain_notification():
-    start_date = datetime.datetime(2024, 4, 30)
+    start_date = datetime.datetime(2024, 5, 24)
     while True:
         current_date = datetime.datetime.now()
         days_passed = (current_date - start_date).days
@@ -120,6 +120,7 @@ def demon_domain_notification():
             markup_inline.add(domain_button)
             for chat_id in subscribe_ids:
                 bot.send_message(chat_id, text, reply_markup = markup_inline)
+            time.sleep(86400)
         current_date += datetime.timedelta(days=1)
         time.sleep(86400)
 
@@ -185,7 +186,7 @@ def sub_tools_message(chat_id):
     btn_left_domain = types.KeyboardButton("Days Left Domain")
     markup.add(btn_check_status, btn_instrument_url, btn_price_request, btn_left_domain)
     bot.send_message(chat_id, "Select an action select an action using the buttons", reply_markup=markup)
-      
+
 
 @bot.message_handler(commands=["projects"])
 def projects_message(message):
