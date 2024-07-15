@@ -1,4 +1,4 @@
-version: "3.2"
+version: "3.8"
 
 services:
   app:
@@ -7,10 +7,29 @@ services:
     volumes:
       - ./pythonBot:/pythonBot
     restart: unless-stopped
+    # environment:
+    #   - TELEGRAM_TOKEN=${TELEGRAM_TOKEN}
+    #   - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:your_app_health_check_endpoint"]
+    #   interval: 1m30s
+    #   timeout: 10s
+    #   retries: 3
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: "0.50"
+    #       memory: 512M
 
   restarter:
     container_name: restarter
     image: docker:cli
-    volumes: ["/var/run/docker.sock:/var/run/docker.sock"]
-    command: ["/bin/sh", "-c", "while true; do sleep 86400; docker restart python-telebot; done"]
+    volumes: 
+      - /var/run/docker.sock:/var/run/docker.sock
+    command:
+      [
+        "/bin/sh",
+        "-c",
+        "while true; do sleep 86400; docker restart python-telebot; done",
+      ]
     restart: unless-stopped
