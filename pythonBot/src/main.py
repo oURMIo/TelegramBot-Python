@@ -11,18 +11,20 @@ import datetime
 from config_service import ConfigService
 from file_service import FileService
 
-LOG_DIR = './logs/'
+LOG_DIR = "./logs/"
 MAX_LOG_SIZE = 100 * 1024 * 1024  # 100 MB
 
 os.makedirs(LOG_DIR, exist_ok=True)
 
-log_file = os.path.join(LOG_DIR, 'console.log')
-with open(log_file, 'w'):
+log_file = os.path.join(LOG_DIR, "console.log")
+with open(log_file, "w"):
     pass
 
 handler = RotatingFileHandler(log_file, maxBytes=MAX_LOG_SIZE, backupCount=1)
 handler.setLevel(logging.DEBUG)
-formatter = logging.Formatter('[%(asctime)s] [%(name)s] [%(levelname)s] - [%(message)s]')
+formatter = logging.Formatter(
+    "[%(asctime)s] [%(name)s] [%(levelname)s] - [%(message)s]"
+)
 handler.setFormatter(formatter)
 
 logging.getLogger().addHandler(handler)
@@ -30,7 +32,7 @@ logging.getLogger().setLevel(logging.DEBUG)
 # %s for string, %d for number
 
 config_service = ConfigService()
-file_service=FileService()
+file_service = FileService()
 
 token = config_service.get_token()
 
@@ -76,7 +78,10 @@ def demon_check_dach_status():
             subscribe_ids = file_service.get_subscribe_users()
             dach_status_counter += 1
             if dach_status_counter == 2:
-                logging.info("Send 'dach shutdown' message to all subscribe users:'%d'", subscribe_ids)
+                logging.info(
+                    "Send 'dach shutdown' message to all subscribe users:'%d'",
+                    subscribe_ids,
+                )
                 flag_dach_work = False
                 text = "The Dach server has status:'SHUTDOWN'. Please check the cluster's status or contact my creator."
                 for chat_id in subscribe_ids:
@@ -96,7 +101,10 @@ def demon_check_chserv_status():
             subscribe_ids = file_service.get_subscribe_users()
             chserv_status_counter += 1
             if chserv_status_counter == 2:
-                logging.info("Send 'chserv shutdown' message to all subscribe users:'%d'", subscribe_ids)
+                logging.info(
+                    "Send 'chserv shutdown' message to all subscribe users:'%d'",
+                    subscribe_ids,
+                )
                 flag_chserv_work = False
                 text = "The Chist server has status:'SHUTDOWN'. Please check the cluster's status or contact my creator."
                 for chat_id in subscribe_ids:
@@ -107,22 +115,26 @@ def demon_check_chserv_status():
 
 
 def demon_domain_notification():
-    start_date = datetime.datetime(2024, 5, 24)
+    start_date = datetime.datetime(2024, 7, 9)
+    sent_flag = True
     while True:
         current_date = datetime.datetime.now()
         days_passed = (current_date - start_date).days
-        if days_passed % 23 == 0:
+        if days_passed % 23 == 0 and sent_flag:
             logging.info("Monthly domain update notification")
             subscribe_ids = file_service.get_subscribe_users()
             text = "Good day! It's time to freshen up the domain names for our servers. Please follow the link:"
             markup_inline = types.InlineKeyboardMarkup()
-            domain_button = types.InlineKeyboardButton("domains", url=config_service.get_url_tool_domain())
+            domain_button = types.InlineKeyboardButton(
+                "domains", url=config_service.get_url_tool_domain()
+            )
             markup_inline.add(domain_button)
             for chat_id in subscribe_ids:
-                bot.send_message(chat_id, text, reply_markup = markup_inline)
+                bot.send_message(chat_id, text, reply_markup=markup_inline)
+            sent_flag = False
             time.sleep(86400)
-        current_date += datetime.timedelta(days=1)
-        time.sleep(86400)
+        time.sleep(21600)
+        sent_flag = True
 
 
 # REQYEST MESSAGES
@@ -141,12 +153,20 @@ def start_message(message):
         username = message.from_user.first_name
         markup = types.InlineKeyboardMarkup()
         markup.row_width = 4
-        markup.add(types.InlineKeyboardButton(text="Tools", callback_data="tools"),
-                   types.InlineKeyboardButton(text="Projects", callback_data="projects"),
-                   types.InlineKeyboardButton(text="For family", callback_data="for_chistyakov"),
-                   types.InlineKeyboardButton(text="Notifications", callback_data="notifications"))
+        markup.add(
+            types.InlineKeyboardButton(text="Tools", callback_data="tools"),
+            types.InlineKeyboardButton(text="Projects", callback_data="projects"),
+            types.InlineKeyboardButton(
+                text="For family", callback_data="for_chistyakov"
+            ),
+            types.InlineKeyboardButton(
+                text="Notifications", callback_data="notifications"
+            ),
+        )
         message_text = f"Hello {username}, I provide a list of my capabilities"
-        bot.send_message(chat_id=message.from_user.id, text=message_text, reply_markup=markup)
+        bot.send_message(
+            chat_id=message.from_user.id, text=message_text, reply_markup=markup
+        )
 
 
 @bot.callback_query_handler(func=lambda call: True)
@@ -168,9 +188,15 @@ def chistyakov_message(message):
 
 def sub_chistyakov_message(chat_id, name):
     markup = types.InlineKeyboardMarkup()
-    button1 = types.InlineKeyboardButton("Family's folder", url=config_service.get_url_tool_drive())
+    button1 = types.InlineKeyboardButton(
+        "Family's folder", url=config_service.get_url_tool_drive()
+    )
     markup.add(button1)
-    bot.send_message(chat_id, "Hello "+name+", greetings to the creator. Your link:", reply_markup=markup)
+    bot.send_message(
+        chat_id,
+        "Hello " + name + ", greetings to the creator. Your link:",
+        reply_markup=markup,
+    )
 
 
 @bot.message_handler(commands=["tools"])
@@ -185,7 +211,11 @@ def sub_tools_message(chat_id):
     btn_price_request = types.KeyboardButton("Price request")
     btn_left_domain = types.KeyboardButton("Days Left Domain")
     markup.add(btn_check_status, btn_instrument_url, btn_price_request, btn_left_domain)
-    bot.send_message(chat_id, "Select an action select an action using the buttons", reply_markup=markup)
+    bot.send_message(
+        chat_id,
+        "Select an action select an action using the buttons",
+        reply_markup=markup,
+    )
 
 
 @bot.message_handler(commands=["projects"])
@@ -195,7 +225,9 @@ def projects_message(message):
 
 def sub_projects_message(chat_id):
     markup = types.InlineKeyboardMarkup()
-    button1 = types.InlineKeyboardButton("Morse translator", url=config_service.get_url_project_morse())
+    button1 = types.InlineKeyboardButton(
+        "Morse translator", url=config_service.get_url_project_morse()
+    )
     markup.add(button1)
     bot.send_message(chat_id, "All working projects:", reply_markup=markup)
 
@@ -212,7 +244,11 @@ def check_dach_server_message(message):
         else:
             flag_dach_work = False
             message_text = "Dach server status: 'SHUTDOWN'"
-        bot.send_message(message.from_user.id, message_text, reply_markup=telebot.types.ReplyKeyboardRemove())
+        bot.send_message(
+            message.from_user.id,
+            message_text,
+            reply_markup=telebot.types.ReplyKeyboardRemove(),
+        )
 
 
 @bot.message_handler(commands=["check_chist_server"])
@@ -227,7 +263,11 @@ def check_chist_server_message(message):
         else:
             flag_chserv_work = False
             message_text = "Chist server status: 'SHUTDOWN'"
-        bot.send_message(message.from_user.id, message_text, reply_markup=telebot.types.ReplyKeyboardRemove())
+        bot.send_message(
+            message.from_user.id,
+            message_text,
+            reply_markup=telebot.types.ReplyKeyboardRemove(),
+        )
 
 
 @bot.message_handler(commands=["notification"])
@@ -240,23 +280,33 @@ def sub_notification_message(chat_id):
     btn_check_dachserv = types.KeyboardButton("/subscribe")
     btn_check_chserv = types.KeyboardButton("/unsubscribe")
     markup.add(btn_check_dachserv, btn_check_chserv)
-    bot.send_message(chat_id, "Select whether you need server status notifications and other useful information", reply_markup=markup)
+    bot.send_message(
+        chat_id,
+        "Select whether you need server status notifications and other useful information",
+        reply_markup=markup,
+    )
 
 
 @bot.message_handler(commands=["subscribe"])
 def subscribe_message(message):
     if check_contains_user(message):
         file_service.subscribe(message.from_user.id)
-        bot.send_message(message.from_user.id, "Congratulations, you have successfully subscribed. Now you will receive important notifications",
-                         reply_markup = telebot.types.ReplyKeyboardRemove())
+        bot.send_message(
+            message.from_user.id,
+            "Congratulations, you have successfully subscribed. Now you will receive important notifications",
+            reply_markup=telebot.types.ReplyKeyboardRemove(),
+        )
 
 
 @bot.message_handler(commands=["unsubscribe"])
 def unsubscribe_message(message):
     if check_contains_user(message):
         file_service.unsubscribe(message.from_user.id)
-        bot.send_message(message.from_user.id, "You have unsubscribed from receiving notifications. To start receiving them again, use the command /subscribe",
-                         reply_markup=telebot.types.ReplyKeyboardRemove())
+        bot.send_message(
+            message.from_user.id,
+            "You have unsubscribed from receiving notifications. To start receiving them again, use the command /subscribe",
+            reply_markup=telebot.types.ReplyKeyboardRemove(),
+        )
 
 
 @bot.message_handler(content_types=["text"])
@@ -266,7 +316,7 @@ def responsi_text_message(message):
         match message.text.lower():
             case "server status":
                 sub_checking_service_status(message)
-            
+
             case "helpful urls":
                 sub_helpful_urls(message)
 
@@ -277,7 +327,11 @@ def responsi_text_message(message):
                 sub_price_request(message)
 
             case _:
-                bot.send_message(message.from_user.id, "I do not understand you. Select a function from the given list /help", reply_markup=markup)
+                bot.send_message(
+                    message.from_user.id,
+                    "I do not understand you. Select a function from the given list /help",
+                    reply_markup=markup,
+                )
 
 
 def sub_checking_service_status(message):
@@ -285,24 +339,40 @@ def sub_checking_service_status(message):
     btn_check_dachserv = types.KeyboardButton("/check_dach_server")
     btn_check_chserv = types.KeyboardButton("/check_chist_server")
     markup.add(btn_check_dachserv, btn_check_chserv)
-    bot.send_message(message.from_user.id, "Select cluster".format(message.from_user), reply_markup=markup)
+    bot.send_message(
+        message.from_user.id,
+        "Select cluster".format(message.from_user),
+        reply_markup=markup,
+    )
 
 
 def sub_helpful_urls(message):
     markup_remove = types.ReplyKeyboardRemove()
     bot.send_message(message.from_user.id, "Helpful urls", reply_markup=markup_remove)
     markup_inline = types.InlineKeyboardMarkup()
-    domain_button = types.InlineKeyboardButton("domains", url=config_service.get_url_tool_domain())
-    drive_button = types.InlineKeyboardButton("drive", url=config_service.get_url_tool_drive())
-    monit_button = types.InlineKeyboardButton("chserv monit", url=config_service.get_url_tool_monit())
-    cloude_button = types.InlineKeyboardButton("nextcloud", url=config_service.get_url_tool_nextcloud())
+    domain_button = types.InlineKeyboardButton(
+        "domains", url=config_service.get_url_tool_domain()
+    )
+    drive_button = types.InlineKeyboardButton(
+        "drive", url=config_service.get_url_tool_drive()
+    )
+    monit_button = types.InlineKeyboardButton(
+        "chserv monit", url=config_service.get_url_tool_monit()
+    )
+    cloude_button = types.InlineKeyboardButton(
+        "nextcloud", url=config_service.get_url_tool_nextcloud()
+    )
     markup_inline.add(domain_button, drive_button, monit_button, cloude_button)
-    bot.send_message(message.from_user.id, "Choose a tool:", reply_markup = markup_inline)
+    bot.send_message(message.from_user.id, "Choose a tool:", reply_markup=markup_inline)
 
 
 def sub_price_request(message):
     markup = telebot.types.ReplyKeyboardRemove()
-    bot.send_message(message.from_user.id, "I apologize, but not supported now".format(message.from_user),reply_markup=markup)
+    bot.send_message(
+        message.from_user.id,
+        "I apologize, but not supported now".format(message.from_user),
+        reply_markup=markup,
+    )
 
 
 def sub_days_left_domain(message):
@@ -312,18 +382,30 @@ def sub_days_left_domain(message):
     days_passed = (current_date - start_date).days
     name = message.from_user.first_name
     days_left = 23 - days_passed % 23
-    bot.send_message(message.from_user.id, f"Dear {name}. Just a gentle reminder, there are '{days_left}' days left until the renewal of the domain name.".format(message.from_user),reply_markup=markup)
+    bot.send_message(
+        message.from_user.id,
+        f"Dear {name}. Just a gentle reminder, there are '{days_left}' days left until the renewal of the domain name.".format(
+            message.from_user
+        ),
+        reply_markup=markup,
+    )
 
 
 def check_contains_user(message):
     if not file_service.check_user_exists(message.from_user.id):
         markup = telebot.types.ReplyKeyboardRemove()
-        bot.send_message(message.from_user.id, "Excuse me, could you please use the '/start' command from the very beginning".format(message.from_user),reply_markup=markup)
+        bot.send_message(
+            message.from_user.id,
+            "Excuse me, could you please use the '/start' command from the very beginning".format(
+                message.from_user
+            ),
+            reply_markup=markup,
+        )
         return False
     return True
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
         thread_check_dachserv = Thread(target=demon_check_dach_status)
         thread_check_dachserv.start()
