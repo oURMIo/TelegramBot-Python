@@ -3,9 +3,9 @@ version: "3.8"
 services:
   app:
     container_name: python-telebot
-    build: ./pythonBot
+    build: ./project
     volumes:
-      - ./pythonBot:/pythonBot
+      - ./project:/project
     restart: unless-stopped
     # environment:
     #   - TELEGRAM_TOKEN=${TELEGRAM_TOKEN}
@@ -24,7 +24,7 @@ services:
   restarter:
     container_name: restarter
     image: docker:cli
-    volumes: 
+    volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     command:
       [
