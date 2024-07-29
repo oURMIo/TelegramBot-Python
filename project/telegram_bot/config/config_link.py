@@ -1,0 +1,44 @@
+import configparser
+from pathlib import Path
+import logging
+from config.config_logging import setup_logging
+
+# Setup logging
+setup_logging()
+
+# Global constants
+BCARD_URL = ""
+CLUSTER_CHECK_URL_1 = ""
+CLUSTER_CHECK_URL_2 = ""
+
+
+def load_config(file_path: str = "./telegram_bot/config/link.ini"):
+    global BCARD_URL, CLUSTER_CHECK_URL_1, CLUSTER_CHECK_URL_2
+
+    config = configparser.ConfigParser()
+    file_path = Path(file_path).resolve()
+
+    if not file_path.is_file():
+        logging.error(f"Config file not found: {file_path}")
+        return
+
+    config.read(file_path)
+
+    BCARD_URL = config.get("BUSINESS_CARD", "BCARD_URL", fallback="")
+    CLUSTER_CHECK_URL_1 = config.get("CHECK_CLUSTER", "CLUSTER_URL_1", fallback="")
+    CLUSTER_CHECK_URL_2 = config.get("CHECK_CLUSTER", "CLUSTER_URL_2", fallback="")
+
+
+load_config()
+
+
+def get_bcard_url() -> str:
+    return BCARD_URL
+
+
+def get_cluster_1_check_url() -> str:
+    return CLUSTER_CHECK_URL_1
+
+
+def get_cluster_2_check_url() -> str:
+    return CLUSTER_CHECK_URL_2
