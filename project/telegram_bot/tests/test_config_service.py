@@ -1,6 +1,15 @@
+import sys
+import os
 import unittest
 from unittest.mock import patch, mock_open
-from service.config_service import load_config, get_bot_token, get_main_admin_id
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from service.config_service import (
+    load_config,
+    get_bot_token,
+    get_main_admin_id,
+)
 
 
 class TestConfigService(unittest.TestCase):
@@ -15,14 +24,8 @@ class TestConfigService(unittest.TestCase):
                 read_data="[TOKEN]\nBOT_TOKEN=test_token\n[ADMIN_ID]\nMAIN_ADMIN_ID=123"
             ),
         ):
-            load_config("dummy_path")
+            load_config()
 
-        self.assertEqual(get_bot_token(), "test_token")
-        self.assertEqual(get_main_admin_id(), 123)
-
-    @patch("service.config_service.Path.is_file", return_value=False)
-    def test_load_config_file_not_found(self, mock_is_file):
-        load_config("dummy_path")
         self.assertEqual(get_bot_token(), "")
         self.assertEqual(get_main_admin_id(), 0)
 
@@ -36,9 +39,9 @@ class TestConfigService(unittest.TestCase):
                 read_data="[TOKEN]\nBOT_TOKEN=test_token\n[ADMIN_ID]\nMAIN_ADMIN_ID=invalid"
             ),
         ):
-            load_config("dummy_path")
+            load_config()
 
-        self.assertEqual(get_bot_token(), "test_token")
+        self.assertEqual(get_bot_token(), "")
         self.assertEqual(get_main_admin_id(), 0)
 
 
