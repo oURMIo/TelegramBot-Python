@@ -165,5 +165,5 @@ def check_user_exist(user_id: int):
     return True
 
 
-def init():
+def init_bot_service():
     logging.info("Init main service bot")
