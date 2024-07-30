@@ -28,6 +28,7 @@ def _send_message(
             user_id,
             message_text,
             reply_markup=reply_markup,
+            parse_mode="HTML",
         )
     except Exception as e:
         logging.exception(

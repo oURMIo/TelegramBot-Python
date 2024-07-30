@@ -1,12 +1,16 @@
 from telebot import types
 from requests_html import HTMLSession
 import logging
-import time
-import datetime
+from datetime import datetime
 from config.config_logging import setup_logging
 from config.config_bot import _send_message
-from config.config_link import get_webcm_tool_url, get_webcm_project_url
-from model.link_info import parse_json
+from config.config_link import (
+    get_webcm_tool_url,
+    get_webcm_project_url,
+    get_webcm_bot_tool_url,
+)
+from model.link_info import parse_linkinfo_json
+from model.wcm_bot_tool import parse_wcmbot_tool_json
 
 # Setup logging
 setup_logging()
@@ -22,7 +26,7 @@ def call_cluster_status(chat_id: int):
 
 def call_useful_urls(chat_id: int):
     data = fetch_json(get_webcm_tool_url())
-    parsed_data = parse_json(data)
+    parsed_data = parse_linkinfo_json(data)
     markup = types.InlineKeyboardMarkup()
     for item in parsed_data:
         card_button = types.InlineKeyboardButton(str(item.name), url=item.link)
@@ -43,14 +47,19 @@ def call_notifications(chat_id: int):
 
 
 def call_domains(chat_id: int):
-    start_date = datetime.datetime(2024, 4, 30)
-    current_date = datetime.datetime.now()
+    data = fetch_json(get_webcm_bot_tool_url())
+    parsed_data = parse_wcmbot_tool_json(data)
+    if not parsed_data:
+        exit()
+
+    start_date = datetime.fromisoformat(parsed_data[0].last_notif_data)
+    current_date = datetime.now()
     days_passed = (current_date - start_date).days
     days_left = 23 - days_passed % 24
     if days_left != 0:
         _send_message(
             user_id=chat_id,
-            message_text=f"My Lord, may I gently remind you that there are only '{days_left}' days left until the renewal of the domain name",
+            message_text=f"My Lord, may I gently remind you that there are only <b>{days_left}</b> days left until the renewal of the domain name",
         )
     else:
         _send_message(
@@ -61,7 +70,7 @@ def call_domains(chat_id: int):
 
 def call_projects(chat_id: int):
     data = fetch_json(get_webcm_project_url())
-    parsed_data = parse_json(data)
+    parsed_data = parse_linkinfo_json(data)
     ms_text = """Projects:\n"""
     for item in parsed_data:
         ms_text += f"""• {item.name} - link:[{item.link}]\n"""

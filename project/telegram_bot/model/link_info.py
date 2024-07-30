@@ -8,5 +8,5 @@ class LinkInfo:
         return f"LinkInfo(id={self.id}, name='{self.name}', link='{self.link}')"
 
 
-def parse_json(data):
+def parse_linkinfo_json(data):
     return [LinkInfo(**item) for item in data]

@@ -12,10 +12,11 @@ CLUSTER_CHECK_URL_1 = ""
 CLUSTER_CHECK_URL_2 = ""
 WEBCM_TOOL_URL = ""
 WEBCM_PROJECTS_URL = ""
+WEBCM_BOT_TOOL_URL = ""
 
 
 def load_config(file_path: str = "./telegram_bot/config/link.ini"):
-    global BCARD_URL, CLUSTER_CHECK_URL_1, CLUSTER_CHECK_URL_2, WEBCM_TOOL_URL, WEBCM_PROJECTS_URL
+    global BCARD_URL, CLUSTER_CHECK_URL_1, CLUSTER_CHECK_URL_2, WEBCM_TOOL_URL, WEBCM_PROJECTS_URL, WEBCM_BOT_TOOL_URL
 
     config = configparser.ConfigParser()
     file_path = Path(file_path).resolve()
@@ -31,6 +32,7 @@ def load_config(file_path: str = "./telegram_bot/config/link.ini"):
     CLUSTER_CHECK_URL_2 = config.get("CHECK_CLUSTER", "CLUSTER_URL_2", fallback="")
     WEBCM_TOOL_URL = config.get("WEB_CM", "TOOL_URL", fallback="")
     WEBCM_PROJECTS_URL = config.get("WEB_CM", "PROJECT_URL", fallback="")
+    WEBCM_BOT_TOOL_URL = config.get("WEB_CM", "BOT_TOOL_URL", fallback="")
 
 
 load_config()
@@ -54,3 +56,7 @@ def get_webcm_tool_url() -> str:
 
 def get_webcm_project_url() -> str:
     return WEBCM_PROJECTS_URL
+
+
+def get_webcm_bot_tool_url() -> str:
+    return WEBCM_BOT_TOOL_URL
