@@ -4,7 +4,12 @@ from config.config_logging import setup_logging
 from config.config_link import get_bcard_url
 from config.config_bot import bot, _send_message
 from utils.util_cluster import check_cluster_1_status, check_cluster_2_status
-from service.service_user import user_save, user_check_exist
+from service.service_user import (
+    user_save,
+    user_check_exist,
+    user_subscribe,
+    user_unsubscribe,
+)
 from service.service_callbacks import (
     call_cluster_status,
     call_useful_urls,
@@ -43,6 +48,27 @@ def handle_help_message(message):
         _send_message(
             user_id=message.from_user.id,
             message_text=message_text,
+        )
+
+
+# SUB & UNSUB
+@bot.message_handler(commands=["sub_notif"])
+def handle_help_message(message):
+    if check_user_exist(user_id=message.from_user.id):
+        user_subscribe(message.from_user.id)
+        _send_message(
+            user_id=message.from_user.id,
+            message_text="Congratulations, you have successfully subscribed. Now you will receive important notifications",
+        )
+
+
+@bot.message_handler(commands=["unsub_notif"])
+def handle_help_message(message):
+    if check_user_exist(user_id=message.from_user.id):
+        user_subscribe(message.from_user.id)
+        _send_message(
+            user_id=message.from_user.id,
+            message_text="Congratulations, you have successfully subscribed. Now you will receive important notifications",
         )
 
 
@@ -137,3 +163,7 @@ def check_user_exist(user_id: int):
         )
         return False
     return True
+
+
+def init():
+    logging.info("Init main service bot")

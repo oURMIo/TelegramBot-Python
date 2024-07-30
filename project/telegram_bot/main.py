@@ -2,7 +2,7 @@ import telebot
 import logging
 from config.config_logging import setup_logging
 from config.config_bot import bot
-from service.service_bot_main import handle_text_message
+from service.service_bot_main import init
 
 # Setup logging
 setup_logging()
