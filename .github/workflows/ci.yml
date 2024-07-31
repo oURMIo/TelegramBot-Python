@@ -27,9 +27,13 @@ jobs:
           pip install codecov
           pip install pytest
           pip install pytest-cov
+          pip install pyTelegramBotAPI
+          pip install TIME-python
+          pip install requests-html
+          pip install lxml_html_clean
 
       - name: Run tests
-        run: pytest --cov=your_package ./pythonBot/test/
+        run: pytest --cov=your_package ./project/telegram_bot/tests/
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4.0.1

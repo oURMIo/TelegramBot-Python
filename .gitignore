@@ -1,7 +1,8 @@
 #config
 **/**/config.ini
 **/config.ini
-config.ini
+**/**/link.ini
+**/link.ini
 
 # files
 *.iml
