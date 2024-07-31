@@ -27,6 +27,10 @@ jobs:
           pip install codecov
           pip install pytest
           pip install pytest-cov
+          pip install pyTelegramBotAPI
+          pip install TIME-python
+          pip install requests-html
+          pip install lxml_html_clean
 
       - name: Run tests
         run: pytest --cov=your_package ./project/telegram_bot/tests/
