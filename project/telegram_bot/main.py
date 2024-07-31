@@ -1,12 +1,13 @@
 import telebot
 import logging
-from config.config_logging import setup_logging
+from config.config_logging import setup_logging, start_scheduler
 from config.config_bot import bot
 from service.service_bot_main import init_bot_service
 from service.service_demon import init_demons
 
 # Setup logging
 setup_logging()
+start_scheduler()
 
 init_bot_service()
 init_demons()

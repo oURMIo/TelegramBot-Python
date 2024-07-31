@@ -8,7 +8,7 @@ class _UserFileService:
     _instance = None
     _lock = Lock()
 
-    def __new__(cls, filename="./telegram_bot/data/user_data.json"):
+    def __new__(cls, filename: str = "./telegram_bot/data/user_data.json"):
         with cls._lock:
             if cls._instance is None:
                 cls._instance = super(_UserFileService, cls).__new__(cls)

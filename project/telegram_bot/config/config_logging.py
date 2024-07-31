@@ -1,11 +1,17 @@
 import logging
 import os
 from logging.handlers import RotatingFileHandler
+from datetime import datetime
+import sched
+import shutil
+import time
+import threading
 
-LOG_DIR = "./telegram_bot/logs/"
+LOG_DIR = "./logs/"
 MAX_LOG_SIZE = 100 * 1024 * 1024  # 100 MB
 LOG_FILE = os.path.join(LOG_DIR, "console.log")
 ERROR_LOG_FILE = os.path.join(LOG_DIR, "error.log")
+COPY_INTERVAL = 12 * 60 * 60  # 12 h
 
 
 def setup_logging():
@@ -13,24 +19,61 @@ def setup_logging():
     open(LOG_FILE, "w").close()
     open(ERROR_LOG_FILE, "w").close()
 
-    # Main log handler
-    main_handler = RotatingFileHandler(LOG_FILE, maxBytes=MAX_LOG_SIZE, backupCount=1)
-    main_handler.setFormatter(
-        logging.Formatter("[%(asctime)s] [%(name)s] [%(levelname)s] - [%(message)s]")
-    )
-    main_handler.encoding = "utf-8"
-
-    # Error log handler
-    error_handler = RotatingFileHandler(
-        ERROR_LOG_FILE, maxBytes=MAX_LOG_SIZE, backupCount=1
-    )
-    error_handler.setFormatter(
-        logging.Formatter("[%(asctime)s] [%(name)s] [%(levelname)s] - [%(message)s]")
-    )
-    error_handler.encoding = "utf-8"
-    error_handler.setLevel(logging.ERROR)
-
     logger = logging.getLogger()
-    logger.addHandler(main_handler)
-    logger.addHandler(error_handler)
-    logger.setLevel(logging.DEBUG)
+
+    if not logger.handlers:
+        # Main log handler
+        main_handler = RotatingFileHandler(
+            LOG_FILE, maxBytes=MAX_LOG_SIZE, backupCount=1
+        )
+        main_handler.setFormatter(
+            logging.Formatter(
+                "[%(asctime)s] [%(name)s] [%(levelname)s] - [%(message)s]"
+            )
+        )
+        main_handler.encoding = "utf-8"
+
+        # Error log handler
+        error_handler = RotatingFileHandler(
+            ERROR_LOG_FILE, maxBytes=MAX_LOG_SIZE, backupCount=1
+        )
+        error_handler.setFormatter(
+            logging.Formatter(
+                "[%(asctime)s] [%(name)s] [%(levelname)s] - [%(message)s]"
+            )
+        )
+        error_handler.encoding = "utf-8"
+        error_handler.setLevel(logging.ERROR)
+
+        logger = logging.getLogger()
+        logger.addHandler(main_handler)
+        logger.addHandler(error_handler)
+        logger.setLevel(logging.DEBUG)
+
+
+def copy_logs():
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
+    try:
+        if os.path.getsize(LOG_FILE) > 0:
+            dest_log_file = os.path.join(LOG_DIR, f"console_{timestamp}.log")
+            shutil.copy2(LOG_FILE, dest_log_file)
+            logging.info(f"Log copied to {dest_log_file}")
+
+        if os.path.getsize(ERROR_LOG_FILE) > 0:
+            dest_error_log_file = os.path.join(LOG_DIR, f"error_{timestamp}.log")
+            shutil.copy2(ERROR_LOG_FILE, dest_error_log_file)
+            logging.info(f"Error log copied to {dest_error_log_file}")
+    except Exception as e:
+        logging.error(f"Failed to copy logs: {e}")
+
+
+def schedule_log_copy(scheduler):
+    scheduler.enter(COPY_INTERVAL, 1, schedule_log_copy, (scheduler,))
+    copy_logs()
+
+
+def start_scheduler():
+    scheduler = sched.scheduler(time.time, time.sleep)
+    scheduler.enter(COPY_INTERVAL, 1, schedule_log_copy, (scheduler,))
+    threading.Thread(target=scheduler.run, daemon=True).start()
