@@ -12,7 +12,7 @@ from config_service import ConfigService
 from file_service import FileService
 
 LOG_DIR = "./logs/"
-MAX_LOG_SIZE = 100 * 1024 * 1024  # 100 MB
+MAX_LOG_SIZE = 100 * 1024 * 1024  # 100MB
 
 os.makedirs(LOG_DIR, exist_ok=True)
 
