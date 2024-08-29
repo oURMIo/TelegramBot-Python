@@ -1,16 +1,16 @@
 from telebot import types
 import logging
-from config.config_logging import setup_logging
-from config.config_link import get_bcard_url
-from config.config_bot import bot, _send_message
-from utils.util_cluster import check_cluster_1_status, check_cluster_2_status
-from service.service_user import (
+from config.log_config import setup_logging
+from config.link_config import get_bcard_url
+from config.bot_config import bot, _send_message
+from utils.cluster_util import check_cluster_1_status, check_cluster_2_status
+from service.user_service import (
     user_save,
     user_check_exist,
     user_subscribe,
     user_unsubscribe,
 )
-from service.service_callbacks import (
+from service.callback_service import (
     call_cluster_status,
     call_useful_urls,
     call_notifications,

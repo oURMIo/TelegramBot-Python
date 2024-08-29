@@ -6,7 +6,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 import unittest
 from unittest.mock import patch, mock_open, MagicMock
 import json
-from service.service_user import (
+from service.user_service import (
     _UserFileService,
     user_save,
     user_subscribe,

@@ -2,9 +2,9 @@ from telebot import types
 from requests_html import HTMLSession
 import logging
 from datetime import datetime
-from config.config_logging import setup_logging
-from config.config_bot import _send_message
-from config.config_link import (
+from config.log_config import setup_logging
+from config.bot_config import _send_message
+from config.link_config import (
     get_webcm_tool_url,
     get_webcm_project_url,
     get_webcm_bot_tool_url,

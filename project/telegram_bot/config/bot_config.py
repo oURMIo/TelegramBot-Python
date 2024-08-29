@@ -1,7 +1,7 @@
 import telebot
 from telebot import types
 import logging
-from config.config_logging import setup_logging
+from config.log_config import setup_logging
 from service.config_service import get_bot_token
 
 # Setup logging

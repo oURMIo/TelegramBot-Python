@@ -1,5 +1,5 @@
 from requests_html import HTMLSession
-from config.config_link import get_cluster_1_check_url, get_cluster_2_check_url
+from config.link_config import get_cluster_1_check_url, get_cluster_2_check_url
 
 
 def check_cluster_status(url: str) -> bool:
