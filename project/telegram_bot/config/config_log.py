@@ -1,13 +1,17 @@
 import logging
-import os
 from logging.handlers import RotatingFileHandler
 from datetime import datetime
 import sched
 import shutil
 import time
 import threading
+import os
+import sys
 
-LOG_DIR = "./logs/"
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+LOG_DIR = os.path.join(base_dir, "logs/")
 MAX_LOG_SIZE = 100 * 1024 * 1024  # 100 MB
 LOG_FILE = os.path.join(LOG_DIR, "console.log")
 ERROR_LOG_FILE = os.path.join(LOG_DIR, "error.log")
@@ -51,7 +55,7 @@ def setup_logging():
         logger.setLevel(logging.DEBUG)
 
 
-def copy_logs():
+def _copy_logs():
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
     try:
@@ -68,12 +72,12 @@ def copy_logs():
         logging.error(f"Failed to copy logs: {e}")
 
 
-def schedule_log_copy(scheduler):
-    scheduler.enter(COPY_INTERVAL, 1, schedule_log_copy, (scheduler,))
-    copy_logs()
+def _schedule_log_copy(scheduler):
+    scheduler.enter(COPY_INTERVAL, 1, _schedule_log_copy, (scheduler,))
+    _copy_logs()
 
 
-def start_scheduler():
+def _start_scheduler():
     scheduler = sched.scheduler(time.time, time.sleep)
-    scheduler.enter(COPY_INTERVAL, 1, schedule_log_copy, (scheduler,))
+    scheduler.enter(COPY_INTERVAL, 1, _schedule_log_copy, (scheduler,))
     threading.Thread(target=scheduler.run, daemon=True).start()

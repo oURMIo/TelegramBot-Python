@@ -1,21 +1,16 @@
-import telebot
 import logging
-from config.log_config import setup_logging, start_scheduler
-from config.bot_config import bot
-from service.bot_main_service import init_bot_service
-from service.demon_service import init_demons
+import telebot
+from config.config_log import setup_logging
+from config.config_initer import main_initialization
+from bot.config_bot import bot
 
-# Setup logging
 setup_logging()
-start_scheduler()
-
-init_bot_service()
-init_demons()
-
+main_initialization()
 
 if __name__ == "__main__":
     try:
         bot.polling(none_stop=True)
+        logging.info("Bot has been initialized successfully.")
     except telebot.apihelper.ApiException as e:
         logging.exception("Telegram API Error: %r", e)
     except Exception as e:
