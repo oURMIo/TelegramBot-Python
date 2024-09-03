@@ -1,26 +1,20 @@
-name: CI
-
+name: codecov
 on:
   push:
-    branches:
-      - main
+    branches: [ "*" ]
   pull_request:
-    branches:
-      - main
+    branches: [ "*" ]
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-
+  codecov:
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
           python-version: 3.11.9
-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -33,7 +27,7 @@ jobs:
           pip install lxml_html_clean
 
       - name: Run tests
-        run: pytest --cov=your_package ./project/telegram_bot/tests/
+        run: pytest --cov=your_package ./project/telegram_bot/test
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4.0.1
